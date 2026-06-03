@@ -142,10 +142,29 @@ function TrainAgentPanel() {
     setCriteria(criteria.filter(c => c.id !== id))
   }
 
-  const handleSave = () => {
+const [agentName, setAgentName] = useState('UAE Investment Analyst')
+const [instructions, setInstructions] = useState('You are a UAE real estate investment analyst specialising in Dubai residential and commercial properties. Focus on high-yield opportunities in freehold areas. Prioritise deals with strong rental demand, good transport links, and reputable developers. Always flag service charge risks and leasehold exposure. Consider Golden Visa eligibility for AED 2M+ properties as a key selling point.')
+
+const handleSave = async () => {
+  try {
+    const response = await fetch('/api/agents', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        name: agentName,
+        instructions: instructions,
+        criteria: criteria,
+        data_sources: ['bayut', 'dld', 'news'],
+      }),
+    })
+    if (!response.ok) throw new Error('Failed to save')
     setSaved(true)
     setTimeout(() => setSaved(false), 2000)
+  } catch (err) {
+    console.error(err)
+    alert('Failed to save agent. Check console for errors.')
   }
+}
 
   const typeColors: Record<string, string> = {
     must: 'bg-[#4AE3A0]/10 text-[#4AE3A0] border-[#4AE3A0]/20',
@@ -164,10 +183,11 @@ function TrainAgentPanel() {
             Agent Name
           </label>
           <input
-            type="text"
-            defaultValue="UAE Investment Analyst"
-            className="w-full bg-white/4 border border-white/8 rounded-lg px-4 py-2.5 text-sm text-white placeholder-white/20 focus:outline-none focus:border-[#4AE3A0]/40 transition-colors"
-          />
+  type="text"
+  value={agentName}
+  onChange={e => setAgentName(e.target.value)}
+  className="w-full bg-white/4 border border-white/8 rounded-lg px-4 py-2.5 text-sm text-white placeholder-white/20 focus:outline-none focus:border-[#4AE3A0]/40 transition-colors"
+/>
         </div>
 
         {/* Instructions */}
